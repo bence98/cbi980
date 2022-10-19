@@ -38,7 +38,7 @@ always @(posedge clk, negedge arstn)
 	if(arstn) rst <= 1'b0;
 	else      rst <= 1'b1;
 
-wire write_en;
+wire write_en, write_err, write_inval=~&wstrb;
 reg  [31:0] write_data;
 reg  [31:0] write_addr;
 
@@ -51,19 +51,23 @@ reg  [31:0] read_addr;
 
 // Write FSM
 localparam WR_WAIT = 2'd0;
-localparam WR_DONE = 2'b1;
+localparam WR_SENT = 2'd1;
+localparam WR_DONE = 2'b2;
+localparam WR_DERR = 2'd3;
 
 reg [1:0] wr_state;
 always @(posedge aclk)
         if(rst) wr_state <= WR_WAIT;
 	else case(wr_state)
 		WR_WAIT: if(awvalid & wvalid) wr_state <= WR_DONE;
+		WR_SENT: if(write_err|write_inval) wr_state <= WR_DERR;
+		         else       wr_state <= WR_DONE;
 		WR_DONE: if(bready) wr_state <= WR_WAIT;
 	endcase
-assign awready  = wr_state == WR_DONE;
-assign wready   = wr_state == WR_DONE;
-assign write_en = awvalid & wvalid;
-assign bvalid   = wr_state == WR_DONE;
+assign awready  = wr_state == WR_SENT;
+assign wready   = wr_state == WR_SENT;
+assign write_en = wr_state == WR_SENT & ~write_inval;
+assign bvalid   = wr_state == WR_DONE || wr_state == WR_DERR;
 
 always @(posedge aclk) begin
 	if(awvalid) write_addr <= awaddr;
