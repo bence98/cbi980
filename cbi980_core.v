@@ -46,6 +46,9 @@ reg [31:0] t0fifo [15:0];
 reg [3:0]  t1head, t1tail;
 reg [3:0]  t0head, t0tail;
 
+// Reset flags
+reg irq_rst, soft_rst;
+
 // Read regs
 always @(posedge clk)
 	case(rd_addr)
@@ -67,5 +70,24 @@ always @(posedge clk)
 
 // Write regs
 assign wr_err=wr_en&((wr_addr<CR)|(wr_addr>DOUT0R));
+
+always @(posedge clk)
+	if(wr_en) case(wr_addr)
+		CR: begin
+			ie <= wr_data[15:4];
+			rxen <= wr_data[3];
+			txen <= wr_data[2];
+			irq_rst <= wr_data[1];
+			soft_rst <= wr_data[0];
+		end
+		DOUT1R: begin
+			t1fifo[t1head] <= wr_data;
+			t1head <= t1head + 1;
+		end
+		DOUT0R: begin
+			t0fifo[t0head] <= wr_data;
+			t0head <= t0head + 1;
+		end
+	endcase
 
 endmodule
