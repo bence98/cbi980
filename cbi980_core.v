@@ -55,7 +55,7 @@ always @(posedge clk)
 		CVR:     rd_data <= 32'hcb199800;
 		SR:      rd_data <= {init, 7'b0, 4'b0, flags, 8'b0};
 		CR:      rd_data <= {8'b0, 4'b0, ie, rxen, txen, interrupt, 1'b0};
-		LCFR:    rd_data <= {5'b0, mclk_rate, 3'd2, 5'b0, octet_cnt, 6'b0, rjust, lsb_first};
+		LCFR:    rd_data <= {5'b0, mclk_rate, 5'b0, 3'd2, 5'b0, octet_cnt, 6'b0, rjust, lsb_first};
 		DIN1R:   rd_data <= r1fifo[r1tail];
 		DIN0R:   rd_data <= r0fifo[r0tail];
 		default: rd_data <= 32'b0;
