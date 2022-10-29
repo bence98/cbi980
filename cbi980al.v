@@ -31,7 +31,10 @@ module cbi980al(
 	output reg  [31:0] rdata,
 	output wire [1:0] rresp,
 	output wire rvalid,
-	input wire rready
+	input wire rready,
+
+	// Interrupt out
+        output wire irq
 );
 
 // Async nRST -> sync RST
@@ -100,5 +103,22 @@ always @(posedge aclk) begin
 	if(read_vld) rdata <= read_data;
 	if(arvalid)  read_addr <= araddr;
 end
+
+// CBI980 logic
+cbi980_core core(
+	.clk(aclk),
+	.rst(rst),
+	.interrupt(irq),
+
+	.wr_addr(write_addr),
+	.wr_data(write_data),
+	.wr_en(write_en),
+	.wr_err(write_err),
+
+	.rd_addr(read_addr),
+	.rd_data(read_data),
+	.rd_valid_in(read_en),
+	.rd_valid_out(read_vld)
+);
 
 endmodule
