@@ -1,3 +1,5 @@
+`default_nettype none
+
 // CBI980 I2S controller with AXI4-Lite interface
 // @author Csókás Bence
 module cbi980al(
@@ -34,11 +36,12 @@ module cbi980al(
 
 // Async nRST -> sync RST
 reg rst;
-always @(posedge clk, negedge arstn)
+always @(posedge aclk, negedge arstn)
 	if(arstn) rst <= 1'b0;
 	else      rst <= 1'b1;
 
-wire write_en, write_err, write_inval=~&wstrb;
+wire write_en, write_err;
+wire write_inval=~&wstrb;
 reg  [31:0] write_data;
 reg  [31:0] write_addr;
 
@@ -52,7 +55,7 @@ reg  [31:0] read_addr;
 // Write FSM
 localparam WR_WAIT = 2'd0;
 localparam WR_SENT = 2'd1;
-localparam WR_DONE = 2'b2;
+localparam WR_DONE = 2'd2;
 localparam WR_DERR = 2'd3;
 
 reg [1:0] wr_state;
@@ -89,7 +92,7 @@ always @(posedge aclk)
 		RD_DONE: if(rready)   rd_state <= RD_WAIT;
 	endcase
 assign arready = rd_state == RD_WAIT;
-assign rd_en   = rd_state == RD_SENT;
+assign read_en = rd_state == RD_SENT;
 assign rvalid  = rd_state == RD_DONE;
 assign rresp   = 2'b00; // OKAY
 

@@ -21,7 +21,7 @@ localparam CVR=3'd0, SR=3'd1, CR=3'd2, LCFR=3'd3, DOUT1R=3'd4, DOUT0R=3'd5, DIN1
 wire init;
 reg  [1:0] rx_ovf, tx_unf;
 wire [1:0] rxne, rxf, txnf, txe;
-wire [11:0] flags=rx_ovf[1], tx_unf[1], rx_ovf[0], tx_unf[0], rxne[1], rxf[1], txnf[1], txe[1], rxne[0], rxf[0], txnf[0], txe[0];
+wire [11:0] flags={rx_ovf[1], tx_unf[1], rx_ovf[0], tx_unf[0], rxne[1], rxf[1], txnf[1], txe[1], rxne[0], rxf[0], txnf[0], txe[0]};
 reg [11:0] ie;
 reg rxen, txen;
 
