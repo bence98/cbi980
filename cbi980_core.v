@@ -11,7 +11,7 @@ module cbi980_core(
 	input wire [2:0] rd_addr,
 	output reg [31:0] rd_data,
 	input wire rd_valid_in,
-	output wire rd_valid_out
+	output reg rd_valid_out
 );
 
 // Register addresses
@@ -62,18 +62,31 @@ always @(posedge clk)
 		default: rd_data <= 32'b0;
 	endcase
 
-
 always @(posedge clk)
-	if(rd_valid_in) case(rd_addr)
+	if(rst) begin
+		r1tail <= 'b0;
+		r0tail <= 'b0;
+	end else if(rd_valid_in) case(rd_addr)
 		DIN1R:   r1tail <= r1tail + 1;
 		DIN0R:   r0tail <= r0tail + 1;
 	endcase
+
+always @(posedge clk)
+	rd_valid_out <= rd_valid_in;
 
 // Write regs
 assign wr_err=wr_en&((wr_addr<CR)|(wr_addr>DOUT0R));
 
 always @(posedge clk)
-	if(wr_en) case(wr_addr)
+	if(rst) begin
+		ie <= 12'b0;
+		rxen <= 1'b0;
+		txen <= 1'b0;
+		irq_rst <= 1'b0;
+		soft_rst <= 1'b0;
+		t1head <= 'b0;
+		t0head <= 'b0;
+	end else if(wr_en) case(wr_addr)
 		CR: begin
 			ie <= wr_data[15:4];
 			rxen <= wr_data[3];

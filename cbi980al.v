@@ -65,15 +65,16 @@ reg [1:0] wr_state;
 always @(posedge aclk)
         if(rst) wr_state <= WR_WAIT;
 	else case(wr_state)
-		WR_WAIT: if(awvalid & wvalid) wr_state <= WR_DONE;
+		WR_WAIT: if(awvalid & wvalid) wr_state <= WR_SENT;
 		WR_SENT: if(write_err|write_inval) wr_state <= WR_DERR;
 		         else       wr_state <= WR_DONE;
-		WR_DONE: if(bready) wr_state <= WR_WAIT;
+		default: if(bready) wr_state <= WR_WAIT;
 	endcase
 assign awready  = wr_state == WR_SENT;
 assign wready   = wr_state == WR_SENT;
 assign write_en = wr_state == WR_SENT & ~write_inval;
 assign bvalid   = wr_state == WR_DONE || wr_state == WR_DERR;
+assign bresp    = wr_state == WR_DERR ? 2'b10 : 2'b00;
 
 always @(posedge aclk) begin
 	if(awvalid) write_addr <= awaddr;
@@ -110,12 +111,12 @@ cbi980_core core(
 	.rst(rst),
 	.interrupt(irq),
 
-	.wr_addr(write_addr),
+	.wr_addr(write_addr[4:2]),
 	.wr_data(write_data),
 	.wr_en(write_en),
 	.wr_err(write_err),
 
-	.rd_addr(read_addr),
+	.rd_addr(read_addr[4:2]),
 	.rd_data(read_data),
 	.rd_valid_in(read_en),
 	.rd_valid_out(read_vld)
