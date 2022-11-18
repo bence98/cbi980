@@ -3,6 +3,13 @@ module cbi980_core(
 	input wire rst,
 	output wire interrupt,
 
+	output wire i2s_rstn,
+	output wire i2s_mclk,
+	output wire i2s_lrclk,
+	output wire i2s_sclk,
+	output wire i2s_sdin,
+	input wire  i2s_sdout,
+
 	input wire [2:0] wr_addr,
 	input wire [31:0] wr_data,
 	input wire wr_en,
@@ -103,5 +110,40 @@ always @(posedge clk)
 			t0head <= t0head + 1;
 		end
 	endcase
+
+// I2S i/f
+wire [1:0] aud_dout_vld, aud_din_ack;
+wire [23:0] aud_dout, aud_din0, aud_din1;
+
+always @(posedge clk)
+	if(rst) begin
+		rx_ovf[0] <= 1'b0;
+		//tx_unf[0] <= 1'b0;
+		r0head <= 'b0;
+	end else if(aud_dout_vld) begin
+		r0fifo[r0head] <= aud_dout;
+		r0head <= r0head + 1;
+	end
+
+codec_if i2s_if(
+	.clk(clk),
+	.rst(rst),
+	.init_done(init),
+	.mclk_rate(mclk_rate),
+	.sclk_rate(sclk_rate),
+	
+	.codec_rstn(i2s_rstn),
+	.codec_mclk(i2s_mclk),
+	.codec_lrclk(i2s_lrclk),
+	.codec_sclk(i2s_sclk),
+	.codec_sdin(i2s_sdin),
+	.codec_sdout(i2s_sdout),
+	
+	.aud_dout_vld(aud_dout_vld),
+	.aud_dout(aud_dout),
+	.aud_din_ack(aud_din_ack),
+	.aud_din0(aud_din0),
+	.aud_din1(aud_din1)
+);
 
 endmodule
