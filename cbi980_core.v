@@ -37,7 +37,7 @@ assign interrupt=|(flags&ie);
 // LCFR flags
 reg [2:0] mclk_rate=3'b0;
 wire[2:0] sclk_rate=3'd2;
-reg [2:0] octet_cnt=3'b1;
+reg [2:0] octet_cnt=3'd3;
 reg       rjust    =1'b0;
 reg       lsb_first=1'b0;
 
@@ -128,8 +128,9 @@ always @(posedge clk)
 	endcase
 
 // I2S i/f
-wire [1:0] aud_dout_vld, aud_din_ack;
-wire [23:0] aud_dout, aud_din0, aud_din1;
+wire [1:0]  aud_dout_vld, aud_din_ack;
+wire [23:0] aud_dout;
+reg  [23:0] aud_din0, aud_din1;
 
 always @(posedge clk)
 	if(rst) begin
