@@ -34,7 +34,15 @@ module cbi980al(
 	input wire rready,
 
 	// Interrupt out
-        output wire irq
+	output wire irq,
+
+	// I2S
+	output wire i2s_rstn,
+	output wire i2s_mclk,
+	output wire i2s_lrclk,
+	output wire i2s_sclk,
+	output wire i2s_sdin,
+	input wire  i2s_sdout
 );
 
 // Async nRST -> sync RST
@@ -110,6 +118,13 @@ cbi980_core core(
 	.clk(aclk),
 	.ext_rst(rst),
 	.interrupt(irq),
+
+	.i2s_rstn(i2s_rstn),
+	.i2s_mclk(i2s_mclk),
+	.i2s_lrclk(i2s_lrclk),
+	.i2s_sclk(i2s_sclk),
+	.i2s_sdin(i2s_sdin),
+	.i2s_sdout(i2s_sdout),
 
 	.wr_addr(write_addr[4:2]),
 	.wr_data(write_data),
