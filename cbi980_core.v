@@ -59,10 +59,10 @@ reg irq_rst, soft_rst;
 wire rst = ext_rst | soft_rst;
 
 // FIFO status
-wire [3:0] r1head_next = r1head+'b1
-wire [3:0] t1head_next = t1head+'b1
-wire [3:0] r0head_next = r0head+'b1
-wire [3:0] t0head_next = t0head+'b1
+wire [3:0] r1head_next = r1head+'b1;
+wire [3:0] t1head_next = t1head+'b1;
+wire [3:0] r0head_next = r0head+'b1;
+wire [3:0] t0head_next = t0head+'b1;
 
 assign rxne[1]=r1head!=r1tail;
 assign rxf [1]=r1head_next==r1tail;
@@ -135,7 +135,7 @@ reg  [23:0] aud_din0, aud_din1;
 always @(posedge clk)
 	if(rst)
 		r1head <= 'b0;
-	else if(aud_dout_vld[1] & rx_en[1]) begin
+	else if(aud_dout_vld[1] & rxen[1]) begin
 		r1fifo[r1head] <= aud_dout;
 		r1head <= r1head + 1;
 	end
@@ -143,7 +143,7 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		t1tail <= 'b0;
-	else if(aud_din_ack[1] & tx_en[1]) begin
+	else if(aud_din_ack[1] & txen[1]) begin
 		aud_din1 <= t1fifo[t1tail];
 		t1tail <= t1tail + 1;
 	end
@@ -151,7 +151,7 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		r0head <= 'b0;
-	else if(aud_dout_vld[0] & rx_en[0]) begin
+	else if(aud_dout_vld[0] & rxen[0]) begin
 		r0fifo[r0head] <= aud_dout;
 		r0head <= r0head + 1;
 	end
@@ -159,7 +159,7 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		t0tail <= 'b0;
-	else if(aud_din_ack[0] & tx_en[0]) begin
+	else if(aud_din_ack[0] & txen[0]) begin
 		aud_din0 <= t0fifo[t0tail];
 		t0tail <= t0tail + 1;
 	end
@@ -169,14 +169,14 @@ generate for(i=0; i<2; i=i+1) begin
 always @(posedge clk)
 	if(rst | irq_rst)
 		rx_ovf[i] <= 1'b0;
-	else if(aud_dout_vld[i] & rx_en[i] & rxf[i]) begin
+	else if(aud_dout_vld[i] & rxen[i] & rxf[i]) begin
 		rx_ovf[i] <= 1'b1;
 	end
 
 always @(posedge clk)
 	if(rst | irq_rst)
 		tx_unf[i] <= 1'b0;
-	else if(aud_din_ack[i] & tx_en[i] & txe[i]) begin
+	else if(aud_din_ack[i] & txen[i] & txe[i]) begin
 		tx_unf[i] <= 1'b1;
 	end
 end

@@ -48,8 +48,8 @@ module cbi980al(
 // Async nRST -> sync RST
 reg rst;
 always @(posedge aclk, negedge arstn)
-	if(arstn) rst <= 1'b0;
-	else      rst <= 1'b1;
+	if(~arstn) rst <= 1'b1;
+	else       rst <= 1'b0;
 
 wire write_en, write_err;
 wire write_inval=~&wstrb;
