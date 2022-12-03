@@ -58,6 +58,21 @@ reg [3:0]  t0head, t0tail;
 reg irq_rst, soft_rst;
 wire rst = ext_rst | soft_rst;
 
+// FIFO status
+wire [3:0] r1head_next = r1head+'b1
+wire [3:0] t1head_next = t1head+'b1
+wire [3:0] r0head_next = r0head+'b1
+wire [3:0] t0head_next = t0head+'b1
+
+assign rxne[1]=r1head!=r1tail;
+assign rxf [1]=r1head_next==r1tail;
+assign txnf[1]=t1head_next!=t1tail;
+assign txe [1]=t1head==t1tail;
+assign rxne[0]=r0head!=r0tail;
+assign rxf [0]=r0head_next==r0tail;
+assign txnf[0]=t0head_next!=t0tail;
+assign txe [0]=t0head==t0tail;
+
 // Read regs
 always @(posedge clk)
 	case(rd_addr)
