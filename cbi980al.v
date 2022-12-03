@@ -108,7 +108,7 @@ end
 // CBI980 logic
 cbi980_core core(
 	.clk(aclk),
-	.rst(rst),
+	.ext_rst(rst),
 	.interrupt(irq),
 
 	.wr_addr(write_addr[4:2]),

@@ -1,6 +1,6 @@
 module cbi980_core(
 	input wire clk,
-	input wire rst,
+	input wire ext_rst,
 	output wire interrupt,
 
 	output wire i2s_rstn,
@@ -56,6 +56,7 @@ reg [3:0]  t0head, t0tail;
 
 // Reset flags
 reg irq_rst, soft_rst;
+wire rst = ext_rst | soft_rst;
 
 // Read regs
 always @(posedge clk)
