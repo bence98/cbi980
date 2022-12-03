@@ -30,7 +30,7 @@ reg  [1:0] rx_ovf, tx_unf;
 wire [1:0] rxne, rxf, txnf, txe;
 wire [11:0] flags={rx_ovf[1], tx_unf[1], rx_ovf[0], tx_unf[0], rxne[1], rxf[1], txnf[1], txe[1], rxne[0], rxf[0], txnf[0], txe[0]};
 reg [11:0] ie;
-reg rxen, txen;
+reg [1:0] rxen, txen;
 
 assign interrupt=|(flags&ie);
 
@@ -63,7 +63,7 @@ always @(posedge clk)
 	case(rd_addr)
 		CVR:     rd_data <= 32'hcb199800;
 		SR:      rd_data <= {init, 7'b0, 4'b0, flags, 8'b0};
-		CR:      rd_data <= {8'b0, 4'b0, ie, rxen, txen, interrupt, 1'b0};
+		CR:      rd_data <= {8'b0, 4'b0, ie, 2'b0, rxen, txen, interrupt, 1'b0};
 		LCFR:    rd_data <= {5'b0, mclk_rate, 5'b0, sclk_rate, 5'b0, octet_cnt, 6'b0, rjust, lsb_first};
 		DIN1R:   rd_data <= r1fifo[r1tail];
 		DIN0R:   rd_data <= r0fifo[r0tail];
@@ -96,9 +96,9 @@ always @(posedge clk)
 		t0head <= 'b0;
 	end else if(wr_en) case(wr_addr)
 		CR: begin
-			ie <= wr_data[15:4];
-			rxen <= wr_data[3];
-			txen <= wr_data[2];
+			ie <= wr_data[19:8];
+			rxen <= wr_data[5:4];
+			txen <= wr_data[3:2];
 			irq_rst <= wr_data[1];
 			soft_rst <= wr_data[0];
 		end
@@ -118,12 +118,38 @@ wire [23:0] aud_dout, aud_din0, aud_din1;
 
 always @(posedge clk)
 	if(rst) begin
+		rx_ovf[1] <= 1'b0;
+		r1head <= 'b0;
+	end else if(aud_dout_vld[1] & rx_en[1]) begin
+		r1fifo[r1head] <= aud_dout;
+		r1head <= r1head + 1;
+	end
+
+always @(posedge clk)
+	if(rst) begin
+		tx_unf[1] <= 1'b0;
+		t1tail <= 'b0;
+	end else if(aud_din_ack[1] & tx_en[1]) begin
+		aud_din1 <= t1fifo[t1tail];
+		t1tail <= t1tail + 1;
+	end
+
+always @(posedge clk)
+	if(rst) begin
 		rx_ovf[0] <= 1'b0;
-		//tx_unf[0] <= 1'b0;
 		r0head <= 'b0;
-	end else if(aud_dout_vld) begin
+	end else if(aud_dout_vld[0] & rx_en[0]) begin
 		r0fifo[r0head] <= aud_dout;
 		r0head <= r0head + 1;
+	end
+
+always @(posedge clk)
+	if(rst) begin
+		tx_unf[0] <= 1'b0;
+		t0tail <= 'b0;
+	end else if(aud_din_ack[0] & tx_en[0]) begin
+		aud_din0 <= t0fifo[t0tail];
+		t0tail <= t0tail + 1;
 	end
 
 codec_if i2s_if(
