@@ -105,7 +105,6 @@ always @(posedge clk)
 		ie <= 12'b0;
 		rxen <= 1'b0;
 		txen <= 1'b0;
-		irq_rst <= 1'b0;
 		soft_rst <= 1'b0;
 		t1head <= 'b0;
 		t0head <= 'b0;
@@ -114,7 +113,6 @@ always @(posedge clk)
 			ie <= wr_data[19:8];
 			rxen <= wr_data[5:4];
 			txen <= wr_data[3:2];
-			irq_rst <= wr_data[1];
 			soft_rst <= wr_data[0];
 		end
 		DOUT1R: begin
@@ -126,6 +124,12 @@ always @(posedge clk)
 			t0head <= t0head + 1;
 		end
 	endcase
+
+always @(posedge clk)
+	if(~rst & wr_en & (wr_addr == CR))
+		irq_rst <= wr_data[1];
+	else
+		irq_rst <= 1'b0;
 
 // I2S i/f
 wire [1:0]  aud_dout_vld, aud_din_ack;
@@ -167,18 +171,20 @@ always @(posedge clk)
 genvar i;
 generate for(i=0; i<2; i=i+1) begin
 always @(posedge clk)
-	if(rst | irq_rst)
+	if(rst)
 		rx_ovf[i] <= 1'b0;
-	else if(aud_dout_vld[i] & rxen[i] & rxf[i]) begin
+	else if(aud_dout_vld[i] & rxen[i] & rxf[i])
 		rx_ovf[i] <= 1'b1;
-	end
+	else if(irq_rst)
+		tx_unf[i] <= 1'b0;
 
 always @(posedge clk)
-	if(rst | irq_rst)
+	if(rst)
 		tx_unf[i] <= 1'b0;
-	else if(aud_din_ack[i] & txen[i] & txe[i]) begin
+	else if(aud_din_ack[i] & txen[i] & txe[i])
 		tx_unf[i] <= 1'b1;
-	end
+	else if(irq_rst)
+		tx_unf[i] <= 1'b0;
 end
 endgenerate
 
