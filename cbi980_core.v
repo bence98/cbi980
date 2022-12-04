@@ -5,13 +5,16 @@ module cbi980_core(
 
 	output wire i2s_rstn,
 	output wire i2s_mclk,
+	(* mark_debug = "true" *)
 	output wire i2s_lrclk,
 	output wire i2s_sclk,
 	output wire i2s_sdin,
 	input wire  i2s_sdout,
 
+	(* mark_debug = "true" *)
 	input wire [2:0] wr_addr,
 	input wire [31:0] wr_data,
+	(* mark_debug = "true" *)
 	input wire wr_en,
 	output wire wr_err,
 
@@ -45,13 +48,17 @@ reg       lsb_first=1'b0;
 // RX FIFOs
 reg [31:0] r1fifo [15:0];
 reg [31:0] r0fifo [15:0];
+(* mark_debug = "true" *)
 reg [3:0]  r1head, r1tail;
+(* mark_debug = "true" *)
 reg [3:0]  r0head, r0tail;
 
 // TX FIFOs
 reg [31:0] t1fifo [15:0];
 reg [31:0] t0fifo [15:0];
+(* mark_debug = "true" *)
 reg [3:0]  t1head, t1tail;
+(* mark_debug = "true" *)
 reg [3:0]  t0head, t0tail;
 
 // Reset flags
@@ -132,6 +139,7 @@ always @(posedge clk)
 		irq_rst <= 1'b0;
 
 // I2S i/f
+(* mark_debug = "true" *)
 wire [1:0]  aud_dout_vld, aud_din_ack;
 wire [23:0] aud_dout;
 reg  [23:0] aud_din0, aud_din1;
