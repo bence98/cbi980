@@ -176,7 +176,7 @@ always @(posedge clk)
 	else if(aud_dout_vld[i] & rxen[i] & rxf[i])
 		rx_ovf[i] <= 1'b1;
 	else if(irq_rst)
-		tx_unf[i] <= 1'b0;
+		rx_ovf[i] <= 1'b0;
 
 always @(posedge clk)
 	if(rst)
