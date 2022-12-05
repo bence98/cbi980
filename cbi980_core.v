@@ -141,8 +141,8 @@ always @(posedge clk)
 // I2S i/f
 (* mark_debug = "true" *)
 wire [1:0]  aud_dout_vld, aud_din_ack;
-wire [23:0] aud_dout;
-reg  [23:0] aud_din0, aud_din1;
+(* mark_debug = "true" *)
+wire [23:0] aud_dout, aud_din0, aud_din1;
 
 always @(posedge clk)
 	if(rst)
@@ -155,10 +155,10 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		t1tail <= 'b0;
-	else if(aud_din_ack[1] & txen[1]) begin
-		aud_din1 <= t1fifo[t1tail];
+	else if(aud_din_ack[1] & txen[1])
 		t1tail <= t1tail + 1;
-	end
+
+assign aud_din1 = t1fifo[t1tail];
 
 always @(posedge clk)
 	if(rst)
@@ -171,10 +171,10 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		t0tail <= 'b0;
-	else if(aud_din_ack[0] & txen[0]) begin
-		aud_din0 <= t0fifo[t0tail];
+	else if(aud_din_ack[0] & txen[0])
 		t0tail <= t0tail + 1;
-	end
+
+assign aud_din0 = t0fifo[t0tail];
 
 genvar i;
 generate for(i=0; i<2; i=i+1) begin
