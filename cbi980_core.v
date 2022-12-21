@@ -24,6 +24,8 @@ module cbi980_core(
 	output reg rd_valid_out
 );
 
+parameter FIFO_SIZE=4;
+
 // Register addresses
 localparam CVR=3'd0, SR=3'd1, CR=3'd2, LCFR=3'd3, DOUT1R=3'd4, DOUT0R=3'd5, DIN1R=3'd6, DIN0R=3'd7;
 
@@ -46,30 +48,30 @@ reg       lsb_first=1'b0;
 
 // FIFOs
 // RX FIFOs
-reg [31:0] r1fifo [15:0];
-reg [31:0] r0fifo [15:0];
+reg [31:0] r1fifo [2**FIFO_SIZE-1:0];
+reg [31:0] r0fifo [2**FIFO_SIZE-1:0];
 (* mark_debug = "true" *)
-reg [3:0]  r1head, r1tail;
+reg [FIFO_SIZE-1:0]  r1head, r1tail;
 (* mark_debug = "true" *)
-reg [3:0]  r0head, r0tail;
+reg [FIFO_SIZE-1:0]  r0head, r0tail;
 
 // TX FIFOs
-reg [31:0] t1fifo [15:0];
-reg [31:0] t0fifo [15:0];
+reg [31:0] t1fifo [2**FIFO_SIZE-1:0];
+reg [31:0] t0fifo [2**FIFO_SIZE-1:0];
 (* mark_debug = "true" *)
-reg [3:0]  t1head, t1tail;
+reg [FIFO_SIZE-1:0]  t1head, t1tail;
 (* mark_debug = "true" *)
-reg [3:0]  t0head, t0tail;
+reg [FIFO_SIZE-1:0]  t0head, t0tail;
 
 // Reset flags
 reg irq_rst, soft_rst;
 wire rst = ext_rst | soft_rst;
 
 // FIFO status
-wire [3:0] r1head_next = r1head+'b1;
-wire [3:0] t1head_next = t1head+'b1;
-wire [3:0] r0head_next = r0head+'b1;
-wire [3:0] t0head_next = t0head+'b1;
+wire [FIFO_SIZE-1:0] r1head_next = r1head+'b1;
+wire [FIFO_SIZE-1:0] t1head_next = t1head+'b1;
+wire [FIFO_SIZE-1:0] r0head_next = r0head+'b1;
+wire [FIFO_SIZE-1:0] t0head_next = t0head+'b1;
 
 assign rxne[1]=r1head!=r1tail;
 assign rxf [1]=r1head_next==r1tail;
