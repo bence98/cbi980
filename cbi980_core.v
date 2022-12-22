@@ -178,12 +178,15 @@ always @(posedge clk)
 
 assign aud_din0 = t0fifo[t0tail];
 
+wire [1:0] txfeed={2{wr_en}}&{wr_addr==DOUT1R, wr_addr==DOUT0R};
+wire [1:0] rxsink={2{rd_valid_in}}&{rd_addr==DIN1R, rd_addr==DIN0R};
+
 genvar i;
 generate for(i=0; i<2; i=i+1) begin
 always @(posedge clk)
 	if(rst)
 		rx_ovf[i] <= 1'b0;
-	else if(aud_dout_vld[i] & rxen[i] & rxf[i])
+	else if(aud_dout_vld[i] & rxen[i] & rxf[i] & ~ rxsink[i])
 		rx_ovf[i] <= 1'b1;
 	else if(irq_rst)
 		rx_ovf[i] <= 1'b0;
@@ -191,7 +194,7 @@ always @(posedge clk)
 always @(posedge clk)
 	if(rst)
 		tx_unf[i] <= 1'b0;
-	else if(aud_din_ack[i] & txen[i] & txe[i])
+	else if(aud_din_ack[i] & txen[i] & txe[i] & ~txfeed[i])
 		tx_unf[i] <= 1'b1;
 	else if(irq_rst)
 		tx_unf[i] <= 1'b0;
