@@ -42,7 +42,7 @@ assign interrupt=|(flags&ie);
 // LCFR flags
 reg [2:0] mclk_rate=3'b0;
 wire[2:0] sclk_rate=3'd2;
-reg [2:0] octet_cnt=3'd3;
+reg [2:0] octet_cnt=3'd2;
 reg       rjust    =1'b0;
 reg       lsb_first=1'b0;
 
@@ -144,7 +144,7 @@ always @(posedge clk)
 (* mark_debug = "true" *)
 wire [1:0]  aud_dout_vld, aud_din_ack;
 (* mark_debug = "true" *)
-wire [23:0] aud_dout, aud_din0, aud_din1;
+wire [31:0] aud_dout, aud_din0, aud_din1;
 
 always @(posedge clk)
 	if(rst)
@@ -216,10 +216,11 @@ codec_if i2s_if(
 	.codec_sdout(i2s_sdout),
 	
 	.aud_dout_vld(aud_dout_vld),
-	.aud_dout(aud_dout),
+	.aud_dout(aud_dout[31:8]),
 	.aud_din_ack(aud_din_ack),
-	.aud_din0(aud_din0),
-	.aud_din1(aud_din1)
+	.aud_din0(aud_din0[31:8]),
+	.aud_din1(aud_din1[31:8])
 );
+assign aud_dout[7:0] = 8'b0;
 
 endmodule
