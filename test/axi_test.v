@@ -94,11 +94,11 @@ task axi_read32;
 endtask
 
 initial begin
-    #150 axi_read32(.address(32'b1000));
-    #150 axi_write32(.address(32'b1000), .data(32'b11111));
-    #150 axi_write32(.address(32'b0000), .data(32'b11111));
-    #150 axi_read32(.address(32'b0000));
-    #150 axi_read32(.address(32'b1000));
+    #150 axi_read32(32'b1000);
+    #150 axi_write32(32'b1000, 32'b11111);
+    #150 axi_write32(32'b0000, 32'b11111);
+    #150 axi_read32(32'b0000);
+    #150 axi_read32(32'b1000);
 end
 
 cbi980al uut(
