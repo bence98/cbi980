@@ -162,11 +162,10 @@ codec_if i2s_if(
 	.codec_sdout(i2s_sdout),
 	
 	.aud_dout_vld(aud_dout_vld),
-	.aud_dout(aud_dout[31:8]),
+	.aud_dout(aud_dout),
 	.aud_din_ack(aud_din_ack),
-	.aud_din0(aud_din[0][31:8]),
-	.aud_din1(aud_din[1][31:8])
+	.aud_din0(aud_din[0]),
+	.aud_din1(aud_din[1])
 );
-assign aud_dout[7:0] = 8'b0;
 
 endmodule

@@ -17,11 +17,11 @@ module codec_if
    input             codec_sdout,
 
    output reg [ 1:0] aud_dout_vld,
-   output     [23:0] aud_dout,
+   output     [31:0] aud_dout,
 
    output reg [ 1:0] aud_din_ack,
-   input      [23:0] aud_din0,
-   input      [23:0] aud_din1
+   input      [31:0] aud_din0,
+   input      [31:0] aud_din1
 );
 
 
@@ -98,8 +98,8 @@ else
   aud_dout_vld[1]<=1'b0;
 
 // ADC parallel data output: the receive shift register
-assign aud_dout = shr_rx;
-
+assign aud_dout[31:8] = shr_rx;
+assign aud_dout[7:0] = 8'b0;
 
 
 // transmit shift register, which should
@@ -109,8 +109,8 @@ reg  [23:0] shr_tx;
 always @ (posedge clk)
 if(sclk_fall) begin
   if(init_done_ff&&bit_cntr==5'd31)
-    if(codec_lrclk) shr_tx<=aud_din0;
-    else shr_tx<=aud_din1;
+    if(codec_lrclk) shr_tx<=aud_din0[31:8];
+    else shr_tx<=aud_din1[31:8];
   else
     shr_tx<={shr_tx[22:0], 1'b0};
 end
